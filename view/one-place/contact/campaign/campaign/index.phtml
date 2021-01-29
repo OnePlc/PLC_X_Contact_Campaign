@@ -1,0 +1,52 @@
+<?php
+use Application\Controller\CoreController;
+$sIcon = (array_key_exists('Campaign-icon',CoreController::$aGlobalSettings))
+    ?  CoreController::$aGlobalSettings['Campaign-icon'] : '';
+
+$iUserSearch = 0;
+if(isset(CoreController::$oSession->iCurrentSearchLoaded)) {
+    $iUserSearch = CoreController::$oSession->iCurrentSearchLoaded;
+} elseif(CoreController::$oSession->oUser->getSetting('Campaign-index-default-search') != '') {
+    $iUserSearch = CoreController::$oSession->oUser->getSetting('Campaign-index-default-search');
+}
+?>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-10">
+                <?= $this->partial('partial/indexheader',[
+                    'sTitle'=>'Campaigns',
+                    'sIcon' => $sIcon,
+                    'sCount'=>$aItems->getTotalItemCount().' total'
+                ]) ?>
+            </div>
+            <div class="col-md-2 text-right">
+                <select class="form-control plc-index-load-saved-search">
+                    <option value="0">-- <?=$this->translate('All')?> --</option>
+                    <?php
+                    if (count($aSavedSearches) > 0) {
+                        foreach($aSavedSearches as $oSearch) {
+                            $sSel = ($iUserSearch == $oSearch->Search_ID) ? ' selected="selected"' : ''; ?>
+                            <option value="<?=$oSearch->Search_ID?>"<?=$sSel?>>
+                                <?=$oSearch->label?>
+                            </option>
+                            <?php
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body py-0">
+        <?= $this->partial('partial/indextable', [
+            'sTableName' => $sTableName,
+            'aItems' => $aItems,
+            'aFilters' => $aFilters,
+            'sRoute' => $sRoute
+        ]); ?>
+    </div>
+    <div class="card-footer">
+        <?= $this->partial('partial/indexpager', ['aItems'=>$aItems,'sRoute'=>$sRoute]); ?>
+    </div>
+</div>

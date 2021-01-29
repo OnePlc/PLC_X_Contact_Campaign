@@ -37,6 +37,20 @@ return [
                     ],
                 ],
             ],
+            'contact-campaign-api' => [
+                'type'    => Segment::class,
+                'options' => [
+                    'route' => '/contact/campaign/api[/:action[/:id]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => Controller\ApiController::class,
+                        'action'     => 'index',
+                    ],
+                ],
+            ],
             'contact-campaign-setup' => [
                 'type'    => Literal::class,
                 'options' => [

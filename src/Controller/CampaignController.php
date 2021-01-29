@@ -22,8 +22,10 @@ use Application\Model\CoreEntityModel;
 use OnePlace\Contact\Campaign\Model\CampaignTable;
 use Laminas\View\Model\ViewModel;
 use Laminas\Db\Adapter\AdapterInterface;
+use Laminas\Db\TableGateway\TableGateway;
 
-class CampaignController extends CoreEntityController {
+class CampaignController extends CoreEntityController
+{
     /**
      * Contact Table Object
      *
@@ -38,7 +40,8 @@ class CampaignController extends CoreEntityController {
      * @param ContactTable $oTableGateway
      * @since 1.0.0
      */
-    public function __construct(AdapterInterface $oDbAdapter,CampaignTable $oTableGateway,$oServiceManager) {
+    public function __construct(AdapterInterface $oDbAdapter,CampaignTable $oTableGateway,$oServiceManager)
+    {
         $this->oTableGateway = $oTableGateway;
         $this->sSingleForm = 'contactcampaign-single';
         parent::__construct($oDbAdapter,$oTableGateway,$oServiceManager);
@@ -51,7 +54,8 @@ class CampaignController extends CoreEntityController {
         }
     }
 
-    public function attachCampaignForm($oItem = false) {
+    public function attachCampaignForm($oItem = false)
+    {
         $oForm = CoreEntityController::$aCoreTables['core-form']->select(['form_key'=>'contactcampaign-single']);
 
         $aFields = [];
@@ -109,13 +113,15 @@ class CampaignController extends CoreEntityController {
         ];
     }
 
-    public function attachCampaignToContact($oItem,$aRawData) {
+    public function attachCampaignToContact($oItem,$aRawData)
+    {
         $oItem->contact_idfs = $aRawData['ref_idfs'];
 
         return $oItem;
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         /**
          * You can just use the default function and customize it via hooks
          * or replace the entire function if you need more customization
@@ -129,5 +135,76 @@ class CampaignController extends CoreEntityController {
         $iContactID = $this->params()->fromRoute('id', 0);
 
         return $this->generateAddView('contactcampaign','contactcampaign-single','contact','view',$iContactID,['iContactID'=>$iContactID]);
+    }
+
+    /**
+     * Contact Campaign Index
+     *
+     * @since 1.0.0
+     * @return ViewModel - View Object with Data from Controller
+     */
+    public function indexAction() {
+        $this->sSingleForm = 'campaign-single';
+        $this->oTableGateway = CoreEntityController::$oServiceManager->get(\OnePlace\Contact\Campaign\Model\CampaignEntityTable::class);
+
+        return $this->generateIndexView('campaign');
+    }
+
+    /**
+     * Create new Contact Campaign
+     *
+     * @since 1.0.0
+     * @return ViewModel - View Object with Data from Controller
+     */
+    public function createAction()
+    {
+        /**
+         * You can just use the default function and customize it via hooks
+         * or replace the entire function if you need more customization
+         *
+         * Hooks available:
+         *
+         * contact-add-before (before show add form)
+         * contact-add-before-save (before save)
+         * contact-add-after-save (after save)
+         */
+        $iContactID = $this->params()->fromRoute('id', 0);
+
+        $this->sSingleForm = 'campaign-single';
+        $this->oTableGateway = CoreEntityController::$oServiceManager->get(\OnePlace\Contact\Campaign\Model\CampaignEntityTable::class);
+
+        return $this->generateAddView('campaign','campaign-single','contact-campaign','index');
+    }
+
+    /**
+     * Campaign View Form
+     *
+     * @since 1.0.0
+     * @return ViewModel - View Object with Data from Controller
+     */
+    public function viewAction() {
+        /**
+         * You can just use the default function and customize it via hooks
+         * or replace the entire function if you need more customization
+         *
+         * Hooks available:
+         *
+         * article-view-before
+         */
+        $iCampaignID = $this->params()->fromRoute('id', 0);
+
+        $this->sSingleForm = 'campaign-single';
+        $this->oTableGateway = CoreEntityController::$oServiceManager->get(\OnePlace\Contact\Campaign\Model\CampaignEntityTable::class);
+
+        $oLinkTbl = new TableGateway('contact_contact_campaign', CoreEntityController::$oDbAdapter);
+        $iLinkCount = count($oLinkTbl->select(['campaign_idfs' => $iCampaignID]));
+
+        $oCampaign =  $this->oTableGateway->getSingle($iCampaignID);
+
+        $this->layout()->aViewLeftWidgets = [
+            (object)['sName' => 'campaign_progress','aParams' => ['iLinkCount' => $iLinkCount,'oCampaign' => $oCampaign]],
+        ];
+
+        return $this->generateViewView('campaign');
     }
 }

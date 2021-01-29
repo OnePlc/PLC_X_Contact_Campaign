@@ -17,7 +17,7 @@ namespace OnePlace\Contact\Campaign\Model;
 
 use Application\Model\CoreEntityModel;
 
-class Campaign extends CoreEntityModel {
+class CampaignEntity extends CoreEntityModel {
     /**
      * Campaign constructor.
      *
@@ -28,7 +28,7 @@ class Campaign extends CoreEntityModel {
         parent::__construct($oDbAdapter);
 
         # Set Single Form Name
-        $this->sSingleForm = 'contactcampaign-single';
+        $this->sSingleForm = 'campaign-single';
 
         # Attach Dynamic Fields to Entity Model
         $this->attachDynamicFields();

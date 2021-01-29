@@ -1,0 +1,7 @@
+<?php
+$iPercent = round(100*($iLinkCount/$oCampaign->target),2);
+?>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: <?=$iPercent?>%" aria-valuenow="<?=$iPercent?>" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+<small><?=$iLinkCount?> von <?=$oCampaign->target?> Kontakten (<?=$iPercent?>%)</small>

@@ -23,6 +23,7 @@ use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\EventManager\EventInterface as Event;
 use Laminas\ModuleManager\ModuleManager;
 use OnePlace\Contact\Campaign\Controller\CampaignController;
+use OnePlace\Contact\Campaign\Model\CampaignEntityTable;
 use OnePlace\Contact\Campaign\Model\CampaignTable;
 use OnePlace\Contact\Model\ContactTable;
 
@@ -74,6 +75,18 @@ class Module {
                     $resultSetPrototype->setArrayObjectPrototype(new Model\Campaign($dbAdapter));
                     return new TableGateway('contact_campaign', $dbAdapter, null, $resultSetPrototype);
                 },
+
+                # Campaign Entity
+                Model\CampaignEntityTable::class => function($container) {
+                    $tableGateway = $container->get(Model\CampaignEntityTableGateway::class);
+                    return new Model\CampaignEntityTable($tableGateway,$container);
+                },
+                Model\CampaignEntityTableGateway::class => function ($container) {
+                    $dbAdapter = $container->get(AdapterInterface::class);
+                    $resultSetPrototype = new ResultSet();
+                    $resultSetPrototype->setArrayObjectPrototype(new Model\CampaignEntity($dbAdapter));
+                    return new TableGateway('campaign', $dbAdapter, null, $resultSetPrototype);
+                },
             ],
         ];
     } # getServiceConfig()
@@ -91,6 +104,18 @@ class Module {
                     # hook start
                     # hook end
                     return new Controller\CampaignController(
+                        $oDbAdapter,
+                        $tableGateway,
+                        $container
+                    );
+                },
+                Controller\ApiController::class => function($container) {
+                    $oDbAdapter = $container->get(AdapterInterface::class);
+                    $tableGateway = $container->get(CampaignEntityTable::class);
+
+                    # hook start
+                    # hook end
+                    return new Controller\ApiController(
                         $oDbAdapter,
                         $tableGateway,
                         $container
